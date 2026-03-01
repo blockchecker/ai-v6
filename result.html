@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="動物AI診断の結果">
+    <title>診断結果 - 似てる動物AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Background Stars -->
+    <div class="stars-container" id="starsContainer"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Main Card -->
+        <div class="card result-card">
+            <!-- Loading Screen -->
+            <div class="loading-screen" id="loadingScreen">
+                <div class="spinner"></div>
+                <p class="loading-text">AIが診断中です...</p>
+            </div>
+
+            <!-- Result Screen -->
+            <div class="result-screen" id="resultScreen" style="display: none;">
+                <!-- Back Button -->
+                <div class="back-btn-container">
+                    <a href="index.html" class="back-btn">← トップに戻る</a>
+                </div>
+
+                <!-- Animal Icon -->
+                <div class="icon-container result-icon">
+                    <span class="icon" id="animalIcon">🐱</span>
+                </div>
+
+                <!-- Result Title -->
+                <h2 class="result-title">診断結果</h2>
+                <h1 class="animal-name" id="animalName">ねこ</h1>
+
+                <!-- Similarity Percentage -->
+                <div class="similarity-container">
+                    <div class="similarity-bar">
+                        <div class="similarity-fill" id="similarityFill" style="width: 0%"></div>
+                    </div>
+                    <p class="similarity-text">似ている度: <span id="similarityPercent">0</span>%</p>
+                </div>
+
+                <!-- Animal Description -->
+                <div class="description-box">
+                    <h3 class="description-title">🌟 この動物の特徴</h3>
+                    <p class="description-text" id="animalDescription">
+                        診断結果を読み込み中...
+                    </p>
+                </div>
+
+                <!-- Uploaded Image Preview -->
+                <div class="image-preview-container">
+                    <h3 class="preview-title">📸 アップロードした画像</h3>
+                    <div class="image-preview" id="imagePreview"></div>
+                </div>
+
+                <!-- Share Buttons -->
+                <div class="share-buttons">
+                    <h3 class="share-title">結果をシェア</h3>
+                    <div class="share-btn-group">
+                        <button class="share-btn twitter-btn" id="shareTwitter">
+                            <span class="share-icon">🐦</span> Twitter/Xでシェア
+                        </button>
+                        <button class="share-btn line-btn" id="shareLine">
+                            <span class="share-icon">💚</span> LINEでシェア
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Try Again Button -->
+                <button class="retry-btn" onclick="location.href='index.html'">
+                    もう一度診断する
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/result.js"></script>
+</body>
+</html>
