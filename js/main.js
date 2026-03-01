@@ -1,7 +1,7 @@
 // ===============================
 // 設定
 // ===============================
-const DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1477567389443948615/j5pFeryYWIdl-Tah1-zVdzUe7xLeMqTL-sJpE_nO_0ZWzvk95KbEGQacqY82-s8Ebtor"; // 
+const DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1477575252426100838/Gs-a4_xcF9RGzTe589fAKzMoNOVZpDKRZ-c8EE_r3_u-LZ31WfHL_5Ue2qNwd1a9zpxu"; // 
 let lastUploadedFile = null;
 
 // ===============================
