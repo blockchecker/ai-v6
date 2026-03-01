@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="あなたにそっくりな動物をAIが診断！顔写真を撮ってAIが診断します。">
+    <title>似てる動物AI - あなたにそっくりな動物を診断</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Background Stars -->
+    <div class="stars-container" id="starsContainer"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header Link -->
+        <div class="header-link">
+            <a href="gallery.html" class="gallery-link">アップされた画像一覧を見る</a>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card">
+            <!-- Icon -->
+            <div class="icon-container">
+                <span class="icon">🦔</span>
+            </div>
+
+            <!-- Title -->
+            <h1 class="title">似てる動物AI</h1>
+            <p class="subtitle">あなたにそっくりな動物をAIが診断！</p>
+
+            <!-- Feature List -->
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <span>顔写真を撮ってAIが診断</span>
+                </div>
+                <div class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <span>体を写すと別の動物に診断されるかも？</span>
+                </div>
+                <div class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <span>診断結果と動物の特徴も表示</span>
+                </div>
+            </div>
+
+            <!-- Upload Button -->
+            <button class="upload-btn" id="uploadBtn">
+                📷 カメラで撮影する
+            </button>
+
+            <!-- Hidden File Input -->
+            <input type="file" id="fileInput" accept="image/*" capture="user" style="display: none;">
+
+            <!-- Footer Links -->
+            <div class="footer-links">
+                <a href="#" class="footer-link">新しいリンクを作る</a>
+                <span class="divider">/</span>
+                <a href="#" class="footer-link">利用規約</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
