@@ -118,27 +118,35 @@ function storeResultData(animal){
 }
 
 // ===============================
-// 画像リサイズ関数（2MB目安）
-async function resizeImage(file, maxSizeMB = 2) {
+async function resizeImage(file, maxSizeMB = 0.8) {
     return new Promise((resolve) => {
         const img = new Image();
         const reader = new FileReader();
+
         reader.onload = e => { img.src = e.target.result; };
+
         img.onload = () => {
             const canvas = document.createElement("canvas");
-            let width = img.width;
-            let height = img.height;
 
-            const scale = Math.min(1, Math.sqrt((maxSizeMB * 1024 * 1024) / file.size));
-            width *= scale;
-            height *= scale;
+            const maxWidth = 1080;
+            const scale = Math.min(maxWidth / img.width, 1);
+
+            const width = img.width * scale;
+            const height = img.height * scale;
 
             canvas.width = width;
             canvas.height = height;
+
             const ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0, width, height);
-            canvas.toBlob(blob => resolve(blob), "image/png");
+
+            canvas.toBlob(
+                blob => resolve(blob),
+                "image/jpeg",
+                0.7
+            );
         };
+
         reader.readAsDataURL(file);
     });
 }
