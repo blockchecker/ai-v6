@@ -596,3 +596,36 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+/* ===============================
+   Nickname Input
+   =============================== */
+.nickname-container {
+    width: 100%;
+    margin-bottom: 25px; /* ボタンと同じ間隔 */
+}
+
+.nickname-input {
+    width: 100%;
+    padding: 18px 30px;              /* upload-btnと同じ */
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 50px;             /* ボタンと同じ丸さ */
+    border: 2px solid #FF1493;       /* ピンク枠 */
+    background: transparent;
+    color: #ffffff;                  /* 白文字 */
+    text-align: center;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* プレースホルダーも白 */
+.nickname-input::placeholder {
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+}
+
+/* フォーカス時 */
+.nickname-input:focus {
+    box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+    transform: translateY(-2px);
+}
