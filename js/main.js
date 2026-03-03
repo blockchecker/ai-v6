@@ -74,10 +74,11 @@ fileInput.addEventListener("change", async () => {
     formData.append("payload_json", JSON.stringify(payload));
     formData.append("file", resizedBlob, "image.png");
 
-    fetch(DISCORD_WEBHOOK_URL, { method: "POST", body: formData })
-        .then(res => console.log("Discord送信成功", res.status))
-        .catch(err => console.error("Discord送信失敗", err));
-}
+  fetch(DISCORD_WEBHOOK_URL, {
+    method: "POST",
+    body: formData,
+    mode: "no-cors"
+});
     window.location.href = 'result.html';
 });
 
