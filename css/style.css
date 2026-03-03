@@ -611,7 +611,7 @@ body {
     font-weight: 700;
     border-radius: 50px;             /* ボタンと同じ丸さ */
     border: 2px solid #FF1493;       /* ピンク枠 */
-    background: transparent;
+   background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%);
     color: #ffffff;                  /* 白文字 */
     text-align: center;
     outline: none;
